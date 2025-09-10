@@ -47,6 +47,15 @@ export default {
           DEFAULT: "hsl(var(--card))",
           foreground: "hsl(var(--card-foreground))",
         },
+        heva: {
+          purple: "hsl(var(--heva-purple))",
+          "purple-light": "hsl(var(--heva-purple-light))",
+          "purple-dark": "hsl(var(--heva-purple-dark))",
+          orange: "hsl(var(--heva-orange))",
+          "orange-light": "hsl(var(--heva-orange-light))",
+          green: "hsl(var(--heva-green))",
+          blue: "hsl(var(--heva-blue))",
+        },
         sidebar: {
           DEFAULT: "hsl(var(--sidebar-background))",
           foreground: "hsl(var(--sidebar-foreground))",
