@@ -26,6 +26,43 @@ export type CreativeSector =
 
 export type BusinessStage = 'idea' | 'startup' | 'growth' | 'established' | 'expansion';
 
+// Credit score and financial types
+export interface CreditScore {
+  score: number;
+  grade: 'Excellent' | 'Very Good' | 'Good' | 'Fair' | 'Poor';
+  last_updated: string;
+  factors: CreditFactor[];
+}
+
+export interface CreditFactor {
+  factor: string;
+  impact: 'positive' | 'negative' | 'neutral';
+  description: string;
+  weight: number; // 1-10 scale
+}
+
+export interface FinancialConnection {
+  id: string;
+  user_id: string;
+  provider: 'mpesa' | 'bank' | 'utility';
+  provider_name: string;
+  account_identifier: string; // phone number, account number, etc.
+  connection_status: 'connected' | 'pending' | 'failed' | 'disconnected';
+  last_sync: string;
+  created_at: string;
+}
+
+export interface ApplicationProgress {
+  id: string;
+  application_id: string;
+  stage: string;
+  status: 'in_progress' | 'completed' | 'pending';
+  started_at: string;
+  completed_at?: string;
+  estimated_completion?: string;
+  notes?: string;
+}
+
 export interface UserProfile {
   id: string;
   full_name?: string;
@@ -54,6 +91,7 @@ export interface Application {
   business_registration_number?: string;
   business_description: string;
   creative_sector: CreativeSector;
+  sector?: string; // Backward compatibility
   business_stage: BusinessStage;
   years_in_operation?: number;
   number_of_employees?: number;
@@ -66,6 +104,7 @@ export interface Application {
   funding_purpose: string;
   project_timeline?: string;
   expected_outcomes?: string;
+  target_beneficiaries?: number;
   
   // Financial Information
   monthly_income?: number;

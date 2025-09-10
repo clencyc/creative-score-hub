@@ -4,7 +4,7 @@ import { Badge } from "@/components/ui/badge";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger, DropdownMenuSeparator } from "@/components/ui/dropdown-menu";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
-import { Menu, Sparkles, BarChart3, Users, Settings, LogOut, User, Shield } from "lucide-react";
+import { Menu, Sparkles, BarChart3, Users, Settings, LogOut, User, Shield, FileText, CreditCard, Link as LinkIcon } from "lucide-react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
 import { useAdmin } from "@/hooks/useAdmin";
@@ -19,8 +19,10 @@ const Header = () => {
   const navigation = [
     { name: "Platform", href: "/", icon: BarChart3 },
     { name: "Dashboard", href: "/dashboard", icon: Users },
-    { name: "Sectors", href: "#sectors", icon: Sparkles },
-    { name: "Features", href: "#features", icon: Settings },
+    { name: "My Applications", href: "/my-applications", icon: FileText },
+    { name: "Credit Score", href: "/credit-score", icon: CreditCard },
+    { name: "Financial Connections", href: "/financial-connections", icon: LinkIcon },
+    { name: "AI Assistant", href: "/ai-assistant", icon: Sparkles },
   ];
 
   const isActive = (href: string) => {
@@ -126,6 +128,17 @@ const Header = () => {
                   <Link to="/auth/login">Login</Link>
                 </Button>
                 <Button 
+                  variant="ghost" 
+                  size="sm"
+                  className="text-xs"
+                  asChild
+                >
+                  <Link to="/admin/login">
+                    <Shield className="mr-1 h-3 w-3" />
+                    Admin
+                  </Link>
+                </Button>
+                <Button 
                   size="sm" 
                   className="bg-gradient-to-r from-heva-purple to-heva-blue hover:from-heva-purple-dark hover:to-heva-blue"
                   asChild
@@ -207,6 +220,16 @@ const Header = () => {
                         asChild
                       >
                         <Link to="/auth/login" onClick={() => setIsOpen(false)}>Login</Link>
+                      </Button>
+                      <Button 
+                        variant="ghost" 
+                        className="w-full text-sm"
+                        asChild
+                      >
+                        <Link to="/admin/login" onClick={() => setIsOpen(false)}>
+                          <Shield className="mr-2 h-4 w-4" />
+                          Administrator Login
+                        </Link>
                       </Button>
                       <Button 
                         className="w-full bg-gradient-to-r from-heva-purple to-heva-blue hover:from-heva-purple-dark hover:to-heva-blue"
