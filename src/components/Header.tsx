@@ -2,12 +2,19 @@ import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
-import { Menu, Sparkles, BarChart3, Users, Settings } from "lucide-react";
-import { Link, useLocation } from "react-router-dom";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger, DropdownMenuSeparator } from "@/components/ui/dropdown-menu";
+import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { Menu, Sparkles, BarChart3, Users, Settings, LogOut, User, Shield } from "lucide-react";
+import { Link, useLocation, useNavigate } from "react-router-dom";
+import { useAuth } from "@/hooks/useAuth";
+import { useAdmin } from "@/hooks/useAdmin";
 
 const Header = () => {
   const [isOpen, setIsOpen] = useState(false);
   const location = useLocation();
+  const navigate = useNavigate();
+  const { user, signOut } = useAuth();
+  const { hasAdminAccess, isAdmin } = useAdmin();
 
   const navigation = [
     { name: "Platform", href: "/", icon: BarChart3 },
@@ -19,6 +26,15 @@ const Header = () => {
   const isActive = (href: string) => {
     if (href === "/") return location.pathname === "/";
     return location.pathname === href;
+  };
+
+  const handleSignOut = async () => {
+    await signOut();
+    navigate("/");
+  };
+
+  const getInitials = (email: string) => {
+    return email.substring(0, 2).toUpperCase();
   };
 
   return (
@@ -62,19 +78,62 @@ const Header = () => {
             <Badge variant="outline" className="bg-heva-green/20 text-heva-green border-heva-green/30">
               Live Beta
             </Badge>
-            <Button 
-              variant="outline" 
-              size="sm" 
-              className="border-border/50"
-            >
-              Login
-            </Button>
-            <Button 
-              size="sm" 
-              className="bg-gradient-to-r from-heva-purple to-heva-blue hover:from-heva-purple-dark hover:to-heva-blue"
-            >
-              Get Started
-            </Button>
+            {user ? (
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button variant="ghost" className="relative h-8 w-8 rounded-full">
+                    <Avatar className="h-8 w-8">
+                      <AvatarFallback>{getInitials(user.email || '')}</AvatarFallback>
+                    </Avatar>
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent className="w-56" align="end" forceMount>
+                  <div className="flex items-center justify-start gap-2 p-2">
+                    <div className="flex flex-col space-y-1 leading-none">
+                      <p className="font-medium">{user.email}</p>
+                    </div>
+                  </div>
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem asChild>
+                    <Link to="/dashboard" className="flex items-center">
+                      <User className="mr-2 h-4 w-4" />
+                      Dashboard
+                    </Link>
+                  </DropdownMenuItem>
+                  {hasAdminAccess && (
+                    <DropdownMenuItem asChild>
+                      <Link to="/admin" className="flex items-center">
+                        <Shield className="mr-2 h-4 w-4" />
+                        Admin Panel
+                      </Link>
+                    </DropdownMenuItem>
+                  )}
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem onClick={handleSignOut}>
+                    <LogOut className="mr-2 h-4 w-4" />
+                    Log out
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
+            ) : (
+              <>
+                <Button 
+                  variant="outline" 
+                  size="sm" 
+                  className="border-border/50"
+                  asChild
+                >
+                  <Link to="/auth/login">Login</Link>
+                </Button>
+                <Button 
+                  size="sm" 
+                  className="bg-gradient-to-r from-heva-purple to-heva-blue hover:from-heva-purple-dark hover:to-heva-blue"
+                  asChild
+                >
+                  <Link to="/auth/signup">Get Started</Link>
+                </Button>
+              </>
+            )}
           </div>
 
           {/* Mobile Menu */}
@@ -113,17 +172,50 @@ const Header = () => {
                   <Badge variant="outline" className="bg-heva-green/20 text-heva-green border-heva-green/30 w-fit">
                     Live Beta
                   </Badge>
-                  <Button 
-                    variant="outline" 
-                    className="w-full border-border/50"
-                  >
-                    Login
-                  </Button>
-                  <Button 
-                    className="w-full bg-gradient-to-r from-heva-purple to-heva-blue hover:from-heva-purple-dark hover:to-heva-blue"
-                  >
-                    Get Started
-                  </Button>
+                  {user ? (
+                    <div className="flex flex-col gap-3">
+                      <div className="text-sm text-muted-foreground">
+                        Signed in as {user.email}
+                        {isAdmin && <Badge variant="secondary" className="ml-2">Admin</Badge>}
+                      </div>
+                      {hasAdminAccess && (
+                        <Button 
+                          variant="outline" 
+                          className="w-full"
+                          asChild
+                        >
+                          <Link to="/admin" onClick={() => setIsOpen(false)}>
+                            <Shield className="mr-2 h-4 w-4" />
+                            Admin Panel
+                          </Link>
+                        </Button>
+                      )}
+                      <Button 
+                        variant="outline" 
+                        className="w-full"
+                        onClick={handleSignOut}
+                      >
+                        <LogOut className="mr-2 h-4 w-4" />
+                        Log out
+                      </Button>
+                    </div>
+                  ) : (
+                    <>
+                      <Button 
+                        variant="outline" 
+                        className="w-full border-border/50"
+                        asChild
+                      >
+                        <Link to="/auth/login" onClick={() => setIsOpen(false)}>Login</Link>
+                      </Button>
+                      <Button 
+                        className="w-full bg-gradient-to-r from-heva-purple to-heva-blue hover:from-heva-purple-dark hover:to-heva-blue"
+                        asChild
+                      >
+                        <Link to="/auth/signup" onClick={() => setIsOpen(false)}>Get Started</Link>
+                      </Button>
+                    </>
+                  )}
                 </div>
               </div>
             </SheetContent>

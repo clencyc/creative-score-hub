@@ -4,6 +4,8 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Progress } from "@/components/ui/progress";
+import { useAuth } from "@/hooks/useAuth";
+import Header from "@/components/Header";
 import { 
   Users, 
   CreditCard, 
@@ -17,6 +19,7 @@ import {
 
 const Dashboard = () => {
   const [activeTab, setActiveTab] = useState("overview");
+  const { user } = useAuth();
 
   const mockApplications = [
     {
@@ -70,16 +73,18 @@ const Dashboard = () => {
 
   return (
     <div className="min-h-screen bg-background">
-      <div className="border-b border-border bg-card">
-        <div className="container mx-auto px-6 py-4">
-          <div className="flex items-center justify-between">
-            <div>
-              <h1 className="text-2xl font-bold text-foreground">HEVA Admin Dashboard</h1>
-              <p className="text-muted-foreground">Credit Intelligence Platform</p>
-            </div>
-            <Button variant="default" className="bg-gradient-to-r from-heva-purple to-heva-blue">
-              New Assessment
-            </Button>
+      <Header />
+      <div className="pt-16"> {/* Add padding to account for fixed header */}
+        <div className="border-b border-border bg-card">
+          <div className="container mx-auto px-6 py-4">
+            <div className="flex items-center justify-between">
+              <div>
+                <h1 className="text-2xl font-bold text-foreground">Welcome, {user?.email}</h1>
+                <p className="text-muted-foreground">Credit Intelligence Platform Dashboard</p>
+              </div>
+              <Button variant="default" className="bg-gradient-to-r from-heva-purple to-heva-blue">
+                New Assessment
+              </Button>
           </div>
         </div>
       </div>
@@ -322,6 +327,7 @@ const Dashboard = () => {
           </TabsContent>
         </Tabs>
       </div>
+      </div> {/* Closing div for pt-16 */}
     </div>
   );
 };
