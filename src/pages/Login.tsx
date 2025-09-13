@@ -7,6 +7,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Alert, AlertDescription } from '@/components/ui/alert'
 import { useAuth } from '@/hooks/useAuth'
 import { Loader2 } from 'lucide-react'
+import { debugUserStatus, testAdminLogin } from '@/lib/debugAuth'
 
 export default function Login() {
   const [email, setEmail] = useState('')
@@ -92,6 +93,32 @@ export default function Login() {
               )}
             </Button>
           </form>
+          
+          {/* Debug Section - Remove in production */}
+          <div className="mt-4 p-3 bg-gray-100 rounded-lg">
+            <p className="text-xs text-gray-600 mb-2">Debug Tools (Development Only):</p>
+            <div className="space-y-2">
+              <Button 
+                variant="outline" 
+                size="sm" 
+                className="w-full text-xs"
+                onClick={() => email && debugUserStatus(email)}
+                type="button"
+              >
+                Debug User Status
+              </Button>
+              <Button 
+                variant="outline" 
+                size="sm" 
+                className="w-full text-xs"
+                onClick={testAdminLogin}
+                type="button"
+              >
+                Test Admin Login
+              </Button>
+            </div>
+            <p className="text-xs text-gray-500 mt-2">Check browser console for debug output</p>
+          </div>
           
           <div className="mt-4 text-center text-sm">
             Don't have an account?{' '}

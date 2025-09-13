@@ -1,5 +1,4 @@
 import { useState } from "react";
-import Header from "@/components/Header";
 import FinancialConnections from "@/components/FinancialConnections";
 import { FinancialConnection } from "@/types/database";
 import { useAuth } from "@/hooks/useAuth";
@@ -68,24 +67,19 @@ const FinancialConnectionsPage = () => {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-purple-50 to-pink-50">
-      <Header />
-      <div className="pt-16">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-          <div className="mb-8">
-            <h1 className="text-3xl font-bold text-gray-900">Financial Connections</h1>
-            <p className="text-gray-600 mt-2">Connect your financial accounts to improve your credit profile</p>
-          </div>
-
-          <FinancialConnections 
-            connections={connections}
-            onConnect={handleConnect}
-            onDisconnect={handleDisconnect}
-            onSync={handleSync}
-          />
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <div className="mb-8">
+          <h1 className="text-3xl font-bold text-gray-900">Financial Connections</h1>
+          <p className="text-gray-600 mt-2">Connect your financial accounts to improve your credit profile</p>
         </div>
+
+        <FinancialConnections 
+          connections={connections}
+          onConnect={handleConnect}
+          onDisconnect={handleDisconnect}
+          onSync={handleSync}
+        />
       </div>
     </div>
   );
-};
-
-export default FinancialConnectionsPage;
+};export default FinancialConnectionsPage;

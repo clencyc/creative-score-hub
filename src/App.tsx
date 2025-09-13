@@ -7,6 +7,7 @@ import { AuthProvider } from "@/contexts/AuthContext";
 import { ProtectedRoute } from "@/components/ProtectedRoute";
 import { AdminRoute } from "@/components/AdminRoute";
 import { Toaster as HotToaster } from "react-hot-toast";
+import DashboardLayout from "@/components/DashboardLayout";
 import Index from "./pages/Index";
 import Dashboard from "./pages/Dashboard";
 import UserDashboard from "./pages/UserDashboard";
@@ -38,46 +39,67 @@ const App = () => (
             <Route path="/auth/signup" element={<Signup />} />
             <Route path="/auth/forgot-password" element={<ForgotPassword />} />
             <Route path="/admin/login" element={<AdminLogin />} />
+            
+            {/* Protected Dashboard Routes with Sidebar Layout */}
             <Route 
               path="/dashboard" 
               element={
                 <ProtectedRoute>
-                  <Dashboard />
+                  <DashboardLayout />
                 </ProtectedRoute>
-              } 
-            />
+              }
+            >
+              <Route index element={<Dashboard />} />
+              <Route path="/dashboard/my-applications" element={<MyApplications />} />
+              <Route path="/dashboard/credit-score" element={<CreditScore />} />
+              <Route path="/dashboard/financial-connections" element={<FinancialConnections />} />
+              <Route path="/dashboard/ai-assistant" element={<AIAssistant />} />
+            </Route>
+
+            {/* Individual Protected Routes (redirected to dashboard) */}
             <Route 
               path="/my-applications" 
               element={
                 <ProtectedRoute>
-                  <MyApplications />
+                  <DashboardLayout />
                 </ProtectedRoute>
-              } 
-            />
+              }
+            >
+              <Route index element={<MyApplications />} />
+            </Route>
+            
             <Route 
               path="/credit-score" 
               element={
                 <ProtectedRoute>
-                  <CreditScore />
+                  <DashboardLayout />
                 </ProtectedRoute>
-              } 
-            />
+              }
+            >
+              <Route index element={<CreditScore />} />
+            </Route>
+            
             <Route 
               path="/financial-connections" 
               element={
                 <ProtectedRoute>
-                  <FinancialConnections />
+                  <DashboardLayout />
                 </ProtectedRoute>
-              } 
-            />
+              }
+            >
+              <Route index element={<FinancialConnections />} />
+            </Route>
+            
             <Route 
               path="/ai-assistant" 
               element={
                 <ProtectedRoute>
-                  <AIAssistant />
+                  <DashboardLayout />
                 </ProtectedRoute>
-              } 
-            />
+              }
+            >
+              <Route index element={<AIAssistant />} />
+            </Route>
             <Route 
               path="/apply" 
               element={
@@ -87,14 +109,14 @@ const App = () => (
               } 
             />
             <Route 
-              path="/admin" 
+              path="/management-console" 
               element={
                 <ProtectedRoute>
                   <AdminRoute>
                     <AdminDashboard />
                   </AdminRoute>
                 </ProtectedRoute>
-              } 
+              }
             />
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />

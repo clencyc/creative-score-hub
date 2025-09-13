@@ -4,7 +4,7 @@ import { Badge } from "@/components/ui/badge";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger, DropdownMenuSeparator } from "@/components/ui/dropdown-menu";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
-import { Menu, Sparkles, BarChart3, Users, Settings, LogOut, User, Shield, FileText, CreditCard, Link as LinkIcon } from "lucide-react";
+import { Menu, Sparkles, BarChart3, Users, Settings, LogOut, User, Shield, FileText, CreditCard, Link as LinkIcon, AlertTriangle } from "lucide-react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
 import { useAdmin } from "@/hooks/useAdmin";
@@ -18,15 +18,27 @@ const Header = () => {
 
   const navigation = [
     { name: "Platform", href: "/", icon: BarChart3 },
-    { name: "Dashboard", href: "/dashboard", icon: Users },
-    { name: "My Applications", href: "/my-applications", icon: FileText },
-    { name: "Credit Score", href: "/credit-score", icon: CreditCard },
-    { name: "Financial Connections", href: "/financial-connections", icon: LinkIcon },
-    { name: "AI Assistant", href: "/ai-assistant", icon: Sparkles },
+    ...(hasAdminAccess ? [
+      // Admin-specific navigation
+      { name: "Management Console", href: "/management-console", icon: Users },
+      { name: "Risk Analytics", href: "/management-console?tab=risk", icon: AlertTriangle },
+      { name: "AI Assistant", href: "/management-console?tab=ai-assistant", icon: Sparkles },
+    ] : [
+      // Regular user navigation
+      { name: "Dashboard", href: "/dashboard", icon: Users },
+      { name: "My Applications", href: "/my-applications", icon: FileText },
+      { name: "Credit Score", href: "/credit-score", icon: CreditCard },
+      { name: "Financial Connections", href: "/financial-connections", icon: LinkIcon },
+      { name: "AI Assistant", href: "/ai-assistant", icon: Sparkles },
+    ])
   ];
 
   const isActive = (href: string) => {
     if (href === "/") return location.pathname === "/";
+    if (href.includes("?tab=")) {
+      const [path, tab] = href.split("?tab=");
+      return location.pathname === path && location.search.includes(`tab=${tab}`);
+    }
     return location.pathname === href;
   };
 
@@ -49,7 +61,7 @@ const Header = () => {
               <Sparkles className="w-5 h-5 text-white" />
             </div>
             <div>
-              <div className="font-bold text-lg text-foreground">HEVA CCI</div>
+              <div className="font-bold text-lg text-foreground">Credit Intelligence</div>
               <div className="text-xs text-muted-foreground -mt-1">Credit Intelligence</div>
             </div>
           </Link>
@@ -104,7 +116,7 @@ const Header = () => {
                   </DropdownMenuItem>
                   {hasAdminAccess && (
                     <DropdownMenuItem asChild>
-                      <Link to="/admin" className="flex items-center">
+                      <Link to="/management-console" className="flex items-center">
                         <Shield className="mr-2 h-4 w-4" />
                         Admin Panel
                       </Link>
@@ -197,7 +209,7 @@ const Header = () => {
                           className="w-full"
                           asChild
                         >
-                          <Link to="/admin" onClick={() => setIsOpen(false)}>
+                          <Link to="/management-console" onClick={() => setIsOpen(false)}>
                             <Shield className="mr-2 h-4 w-4" />
                             Admin Panel
                           </Link>

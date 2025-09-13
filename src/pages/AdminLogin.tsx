@@ -7,9 +7,10 @@ import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Badge } from "@/components/ui/badge";
 import { useAuth } from "@/hooks/useAuth";
 import { useAdmin } from "@/hooks/useAdmin";
-import { Link, Navigate } from "react-router-dom";
+import { Link, Navigate, useNavigate } from "react-router-dom";
 import { Eye, EyeOff, Shield, AlertTriangle } from "lucide-react";
 import { toast } from "react-hot-toast";
+import { setupAdminUser } from "@/lib/adminSetup";
 
 const AdminLogin = () => {
   const [email, setEmail] = useState("");
@@ -19,10 +20,11 @@ const AdminLogin = () => {
   
   const { signIn, user } = useAuth();
   const { isAdmin, hasAdminAccess, adminEmail } = useAdmin();
+  const navigate = useNavigate();
 
   // If already logged in as admin, redirect to admin dashboard
   if (user && hasAdminAccess) {
-    return <Navigate to="/admin" replace />;
+    return <Navigate to="/management-console" replace />;
   }
 
   // If logged in but not admin, show access denied
@@ -81,14 +83,60 @@ const AdminLogin = () => {
         return;
       }
 
-      await signIn(email, password);
-      toast.success('Welcome, Administrator!');
+      const { error } = await signIn(email, password);
+      
+      if (error) {
+        toast.error(error.message || 'Failed to sign in');
+      } else {
+        toast.success('Welcome, Administrator!');
+        // Explicit redirect to management console
+        navigate('/management-console', { replace: true });
+      }
     } catch (error: unknown) {
       console.error('Login error:', error);
       const errorMessage = error instanceof Error ? error.message : 'Failed to sign in';
       toast.error(errorMessage);
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleSetupAdmin = async () => {
+    setLoading(true);
+    toast.loading('Setting up admin user...');
+
+    try {
+      const result = await setupAdminUser();
+      
+      if (result.success && result.needsConfirmation) {
+        toast.success('✅ Admin user created!');
+        toast(`📋 SQL command copied to clipboard!`, { duration: 4000 });
+        
+        // Copy SQL to clipboard if possible
+        if (navigator.clipboard && result.sqlCommand) {
+          try {
+            await navigator.clipboard.writeText(result.sqlCommand);
+            console.log('📋 SQL Command to run in Supabase:');
+            console.log(result.sqlCommand);
+          } catch (err) {
+            console.log('Could not copy to clipboard, but command is logged above');
+          }
+        }
+        
+        // Show instructions
+        toast(`🔧 Next: Run the SQL in Supabase, then login!`, { duration: 6000 });
+        
+      } else if (result.success) {
+        toast.success(result.message || 'Admin user setup complete!');
+      } else {
+        toast.error(result.error?.message || 'Setup failed');
+      }
+    } catch (error) {
+      console.error('Setup error:', error);
+      toast.error('Setup failed');
+    } finally {
+      setLoading(false);
+      toast.dismiss();
     }
   };
 
@@ -109,12 +157,20 @@ const AdminLogin = () => {
         </CardHeader>
         
         <CardContent>
-          <Alert className="mb-6">
+          <Alert className="mb-4">
             <Shield className="h-4 w-4" />
             <AlertDescription>
               <strong>Admin Email:</strong> {adminEmail}
               <br />
               Only this specific email address has administrator privileges.
+            </AlertDescription>
+          </Alert>
+
+          <Alert className="mb-6 bg-blue-50 border-blue-200">
+            <AlertDescription className="text-blue-800">
+              <strong>Demo Credentials:</strong><br />
+              Email: admin@creative-score-hub.com<br />
+              Password: adminuser
             </AlertDescription>
           </Alert>
 
@@ -174,6 +230,23 @@ const AdminLogin = () => {
               {loading ? "Signing in..." : "Sign In as Administrator"}
             </Button>
           </form>
+
+          <div className="mt-4 p-3 bg-yellow-50 border border-yellow-200 rounded-lg">
+            <p className="text-sm text-yellow-800 mb-2">
+              🔧 First time setup or having login issues?
+            </p>
+            <Button 
+              variant="outline" 
+              className="w-full text-sm"
+              onClick={handleSetupAdmin}
+              disabled={loading}
+            >
+              {loading ? "Setting up..." : "One-Click Admin Setup"}
+            </Button>
+            <p className="text-xs text-yellow-600 mt-1">
+              This will create and configure the admin account
+            </p>
+          </div>
 
           <div className="mt-6 pt-6 border-t text-center">
             <p className="text-sm text-muted-foreground">

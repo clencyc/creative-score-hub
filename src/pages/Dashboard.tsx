@@ -5,7 +5,6 @@ import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Progress } from "@/components/ui/progress";
 import { useAuth } from "@/hooks/useAuth";
-import Header from "@/components/Header";
 import CreditScoreCard from "@/components/CreditScoreCard";
 import FinancialConnections from "@/components/FinancialConnections";
 import ApplicationProgressCard from "@/components/ApplicationProgressCard";
@@ -204,24 +203,21 @@ const Dashboard = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-purple-50 to-pink-50">
-      <Header />
-      <div className="pt-16">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-          <div className="mb-8">
-            <h1 className="text-3xl font-bold text-gray-900">Dashboard</h1>
-            <p className="text-gray-600 mt-2">Manage your applications and track your progress</p>
-          </div>
+    <div className="space-y-6">
+      <div className="mb-8">
+        <h1 className="text-3xl font-bold text-gray-900">Dashboard Overview</h1>
+        <p className="text-gray-600 mt-2">Welcome back! Here's what's happening with your applications</p>
+      </div>
 
-          <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
-            <TabsList className="grid w-full grid-cols-6">
-              <TabsTrigger value="overview">Overview</TabsTrigger>
-              <TabsTrigger value="credit-score">Credit Score</TabsTrigger>
-              <TabsTrigger value="connections">Connections</TabsTrigger>
-              <TabsTrigger value="applications">Applications</TabsTrigger>
-              <TabsTrigger value="sectors">Sectors</TabsTrigger>
-              <TabsTrigger value="analytics">Analytics</TabsTrigger>
-            </TabsList>
+      <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
+        <TabsList className="grid w-full grid-cols-6 bg-white border border-gray-200">
+          <TabsTrigger value="overview" className="data-[state=active]:bg-heva-purple data-[state=active]:text-white">Overview</TabsTrigger>
+          <TabsTrigger value="credit-score" className="data-[state=active]:bg-heva-purple data-[state=active]:text-white">Credit Score</TabsTrigger>
+          <TabsTrigger value="connections" className="data-[state=active]:bg-heva-purple data-[state=active]:text-white">Connections</TabsTrigger>
+          <TabsTrigger value="applications" className="data-[state=active]:bg-heva-purple data-[state=active]:text-white">Applications</TabsTrigger>
+          <TabsTrigger value="sectors" className="data-[state=active]:bg-heva-purple data-[state=active]:text-white">Sectors</TabsTrigger>
+          <TabsTrigger value="analytics" className="data-[state=active]:bg-heva-purple data-[state=active]:text-white">Analytics</TabsTrigger>
+        </TabsList>
 
             <TabsContent value="overview" className="space-y-6">
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
@@ -469,8 +465,6 @@ const Dashboard = () => {
               </div>
             </TabsContent>
           </Tabs>
-        </div>
-      </div>
     </div>
   );
 };

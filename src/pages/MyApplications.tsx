@@ -1,14 +1,15 @@
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import Header from "@/components/Header";
-import { FileText, Calendar, DollarSign, Users } from "lucide-react";
+import { FileText, Calendar, DollarSign, Users, Plus } from "lucide-react";
 import { Application } from "@/types/database";
 import { useAuth } from "@/hooks/useAuth";
 import { toast } from "@/components/ui/use-toast";
 
 const MyApplications = () => {
+  const navigate = useNavigate();
   const { user } = useAuth();
 
   // Mock applications data
@@ -95,17 +96,25 @@ const MyApplications = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-purple-50 to-pink-50">
-      <Header />
-      <div className="pt-16">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-          <div className="mb-8">
-            <h1 className="text-3xl font-bold text-gray-900">My Applications</h1>
-            <p className="text-gray-600 mt-2">Track and manage all your funding applications</p>
-          </div>
+    <div className="space-y-6">
+      <div className="flex items-center justify-between mb-8">
+        <div>
+          <h1 className="text-3xl font-bold text-gray-900">My Applications</h1>
+          <p className="text-gray-600 mt-2">Track and manage all your funding applications</p>
+        </div>
+        <Button 
+          className="bg-gradient-to-r from-heva-purple to-heva-blue hover:from-heva-purple-dark hover:to-heva-blue text-white"
+          onClick={() => {
+            navigate('/apply');
+          }}
+        >
+          <Plus className="h-4 w-4 mr-2" />
+          New Application
+        </Button>
+      </div>
 
-          {/* Summary Cards */}
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+      {/* Summary Cards */}
+      <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
             <Card>
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                 <CardTitle className="text-sm font-medium">Total Applications</CardTitle>
@@ -228,13 +237,19 @@ const MyApplications = () => {
                 <FileText className="h-12 w-12 text-gray-400 mx-auto mb-4" />
                 <h3 className="text-lg font-medium text-gray-900 mb-2">No applications yet</h3>
                 <p className="text-gray-500 mb-4">Start your creative journey by submitting your first application</p>
-                <Button>Create New Application</Button>
+                <Button 
+                  className="bg-gradient-to-r from-heva-purple to-heva-blue hover:from-heva-purple-dark hover:to-heva-blue text-white"
+                  onClick={() => {
+                    navigate('/apply');
+                  }}
+                >
+                  <Plus className="h-4 w-4 mr-2" />
+                  Create New Application
+                </Button>
               </CardContent>
             </Card>
           )}
         </div>
-      </div>
-    </div>
   );
 };
 

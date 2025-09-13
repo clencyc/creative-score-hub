@@ -3,7 +3,6 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
-import Header from "@/components/Header";
 import { 
   MessageCircle, 
   Send, 
@@ -134,57 +133,21 @@ const AIAssistant = () => {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-purple-50 to-pink-50">
-      <Header />
-      <div className="pt-16">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-          <div className="mb-8">
-            <h1 className="text-3xl font-bold text-gray-900">AI Assistant</h1>
-            <p className="text-gray-600 mt-2">Get personalized advice for your creative funding journey</p>
-          </div>
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <div className="mb-8">
+          <h1 className="text-3xl font-bold text-gray-900">AI Assistant</h1>
+          <p className="text-gray-600 mt-2">Get personalized advice for your creative funding journey</p>
+        </div>
 
-          <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
-            {/* Quick Actions Sidebar */}
-            <div className="lg:col-span-1">
-              <Card>
-                <CardHeader>
-                  <CardTitle className="flex items-center">
-                    <Sparkles className="h-5 w-5 mr-2" />
-                    Quick Actions
-                  </CardTitle>
-                  <CardDescription>
-                    Get instant help with common topics
-                  </CardDescription>
-                </CardHeader>
-                <CardContent className="space-y-3">
-                  {quickActions.map((action, index) => (
-                    <Button
-                      key={index}
-                      variant="outline"
-                      className="w-full justify-start h-auto p-4"
-                      onClick={() => handleQuickAction(action.action)}
-                    >
-                      <div className="flex items-start space-x-3">
-                        <action.icon className="h-5 w-5 mt-1 text-purple-600" />
-                        <div className="text-left">
-                          <div className="font-medium text-sm">{action.title}</div>
-                          <div className="text-xs text-gray-500 mt-1">{action.description}</div>
-                        </div>
-                      </div>
-                    </Button>
-                  ))}
-                </CardContent>
-              </Card>
-            </div>
-
-            {/* Chat Interface */}
-            <div className="lg:col-span-3">
-              <Card className="h-[600px] flex flex-col">
-                <CardHeader className="border-b">
-                  <CardTitle className="flex items-center">
-                    <Bot className="h-5 w-5 mr-2 text-blue-600" />
-                    AI Assistant Chat
-                  </CardTitle>
-                  <CardDescription>
+        {/* Chat Interface */}
+        <div>
+          <Card className="h-[600px] flex flex-col">
+            <CardHeader className="border-b">
+              <CardTitle className="flex items-center">
+                <Bot className="h-5 w-5 mr-2 text-blue-600" />
+                AI Assistant Chat
+              </CardTitle>
+              <CardDescription>
                     Ask questions about funding, applications, and credit improvement
                   </CardDescription>
                 </CardHeader>
@@ -281,9 +244,7 @@ const AIAssistant = () => {
             </div>
           </div>
         </div>
-      </div>
-    </div>
-  );
-};
+      );
+    };
 
 export default AIAssistant;

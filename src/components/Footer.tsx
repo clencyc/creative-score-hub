@@ -101,7 +101,7 @@ const Footer = () => {
                   <Sparkles className="w-5 h-5 text-white" />
                 </div>
                 <div>
-                  <div className="font-bold text-xl text-foreground">HEVA CCI</div>
+                  <div className="font-bold text-xl text-foreground">Credit Intelligence</div>
                   <div className="text-sm text-muted-foreground">Credit Intelligence Platform</div>
                 </div>
               </div>
