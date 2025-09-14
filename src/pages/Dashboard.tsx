@@ -1,32 +1,21 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Progress } from "@/components/ui/progress";
 import { useAuth } from "@/hooks/useAuth";
 import CreditScoreCard from "@/components/CreditScoreCard";
-import FinancialConnections from "@/components/FinancialConnections";
 import ApplicationProgressCard from "@/components/ApplicationProgressCard";
 import { 
-  Users, 
   CreditCard, 
   TrendingUp, 
-  AlertTriangle, 
   FileText,
-  Clock,
   CheckCircle,
-  XCircle,
-  Smartphone,
-  Building2,
-  Target
+  Eye
 } from "lucide-react";
-import { CreditScore, FinancialConnection, Application, ApplicationProgress } from "@/types/database";
+import { CreditScore, Application, ApplicationProgress } from "@/types/database";
 import { toast } from "@/components/ui/use-toast";
 
 const Dashboard = () => {
-  const [activeTab, setActiveTab] = useState("overview");
-  const [financialConnections, setFinancialConnections] = useState<FinancialConnection[]>([]);
   const { user } = useAuth();
 
   // Mock credit score data
@@ -171,27 +160,6 @@ const Dashboard = () => {
     });
   };
 
-  const handleConnectAccount = (connection: Omit<FinancialConnection, 'id' | 'user_id' | 'created_at' | 'last_sync'>) => {
-    toast({
-      title: "Account Connection",
-      description: `Connecting to ${connection.provider_name}...`,
-    });
-  };
-
-  const handleDisconnectAccount = (connectionId: string) => {
-    toast({
-      title: "Account Disconnection",
-      description: `Disconnecting account ${connectionId}...`,
-    });
-  };
-
-  const handleSyncAccount = (connectionId: string) => {
-    toast({
-      title: "Account Sync",
-      description: `Syncing account ${connectionId}...`,
-    });
-  };
-
   const getStatusColor = (status: string) => {
     switch (status) {
       case 'approved': return 'bg-green-100 text-green-800';
@@ -209,262 +177,74 @@ const Dashboard = () => {
         <p className="text-gray-600 mt-2">Welcome back! Here's what's happening with your applications</p>
       </div>
 
-      <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
-        <TabsList className="grid w-full grid-cols-6 bg-white border border-gray-200">
-          <TabsTrigger value="overview" className="data-[state=active]:bg-heva-purple data-[state=active]:text-white">Overview</TabsTrigger>
-          <TabsTrigger value="credit-score" className="data-[state=active]:bg-heva-purple data-[state=active]:text-white">Credit Score</TabsTrigger>
-          <TabsTrigger value="connections" className="data-[state=active]:bg-heva-purple data-[state=active]:text-white">Connections</TabsTrigger>
-          <TabsTrigger value="applications" className="data-[state=active]:bg-heva-purple data-[state=active]:text-white">Applications</TabsTrigger>
-          <TabsTrigger value="sectors" className="data-[state=active]:bg-heva-purple data-[state=active]:text-white">Sectors</TabsTrigger>
-          <TabsTrigger value="analytics" className="data-[state=active]:bg-heva-purple data-[state=active]:text-white">Analytics</TabsTrigger>
-        </TabsList>
+      <div className="space-y-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+          {stats.map((stat, index) => (
+            <Card key={index}>
+              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                <CardTitle className="text-sm font-medium">{stat.title}</CardTitle>
+                <stat.icon className="h-4 w-4 text-muted-foreground" />
+              </CardHeader>
+              <CardContent>
+                <div className="text-2xl font-bold">{stat.value}</div>
+                <p className="text-xs text-muted-foreground">{stat.description}</p>
+                <div className="text-xs text-green-600 mt-1">{stat.trend}</div>
+              </CardContent>
+            </Card>
+          ))}
+        </div>
 
-            <TabsContent value="overview" className="space-y-6">
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-                {stats.map((stat, index) => (
-                  <Card key={index}>
-                    <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                      <CardTitle className="text-sm font-medium">{stat.title}</CardTitle>
-                      <stat.icon className="h-4 w-4 text-muted-foreground" />
-                    </CardHeader>
-                    <CardContent>
-                      <div className="text-2xl font-bold">{stat.value}</div>
-                      <p className="text-xs text-muted-foreground">{stat.description}</p>
-                      <div className="text-xs text-green-600 mt-1">{stat.trend}</div>
-                    </CardContent>
-                  </Card>
-                ))}
-              </div>
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          <CreditScoreCard creditScore={mockCreditScore} />
+          <ApplicationProgressCard 
+            applications={mockApplications}
+            applicationProgress={{
+              "app-001": mockApplicationProgress[0],
+              "app-002": mockApplicationProgress[1]
+            }}
+            onViewApplication={handleViewApplication}
+          />
+        </div>
 
-              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                <CreditScoreCard creditScore={mockCreditScore} />
-                <ApplicationProgressCard 
-                  applications={mockApplications}
-                  applicationProgress={{
-                    "app-001": mockApplicationProgress[0],
-                    "app-002": mockApplicationProgress[1]
-                  }}
-                  onViewApplication={handleViewApplication}
-                />
-              </div>
-
-              <Card>
-                <CardHeader>
-                  <CardTitle>Recent Applications</CardTitle>
-                  <CardDescription>Your latest funding applications</CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <div className="space-y-4">
-                    {mockApplications.map((app) => (
-                      <div key={app.id} className="flex items-center justify-between p-4 border rounded-lg">
-                        <div className="flex-1">
-                          <h3 className="font-medium">{app.project_title}</h3>
-                          <p className="text-sm text-gray-600">{app.business_name}</p>
-                          <p className="text-xs text-gray-500">{app.sector}</p>
-                        </div>
-                        <div className="flex items-center space-x-4">
-                          <Badge className={getStatusColor(app.status)}>
-                            {app.status.replace('_', ' ')}
-                          </Badge>
-                          <div className="text-right">
-                            <div className="font-medium">KES {app.funding_amount_requested.toLocaleString()}</div>
-                            <div className="text-xs text-gray-500">
-                              {new Date(app.submitted_at).toLocaleDateString()}
-                            </div>
-                          </div>
-                          <Button 
-                            size="sm" 
-                            variant="outline"
-                            onClick={() => handleViewApplication(app.id)}
-                          >
-                            View
-                          </Button>
-                        </div>
-                      </div>
-                    ))}
+        <Card>
+          <CardHeader>
+            <CardTitle>Recent Applications</CardTitle>
+            <CardDescription>Your latest funding applications</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-4">
+              {mockApplications.map((app) => (
+                <div key={app.id} className="flex items-center justify-between p-4 border rounded-lg">
+                  <div className="flex-1">
+                    <h3 className="font-medium">{app.project_title}</h3>
+                    <p className="text-sm text-gray-600">{app.business_name}</p>
+                    <p className="text-xs text-gray-500">{app.sector}</p>
                   </div>
-                </CardContent>
-              </Card>
-            </TabsContent>
-
-            <TabsContent value="credit-score">
-              <CreditScoreCard creditScore={mockCreditScore} />
-            </TabsContent>
-
-            <TabsContent value="connections">
-              <FinancialConnections 
-                connections={financialConnections}
-                onConnect={handleConnectAccount}
-                onDisconnect={handleDisconnectAccount}
-                onSync={handleSyncAccount}
-              />
-            </TabsContent>
-
-            <TabsContent value="applications">
-              <Card>
-                <CardHeader>
-                  <CardTitle>All Applications</CardTitle>
-                  <CardDescription>Manage and track all your funding applications</CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <div className="space-y-4">
-                    {mockApplications.map((app) => (
-                      <div key={app.id} className="border rounded-lg p-6">
-                        <div className="flex items-start justify-between">
-                          <div className="flex-1">
-                            <div className="flex items-center space-x-2 mb-2">
-                              <h3 className="text-lg font-semibold">{app.project_title}</h3>
-                              <Badge className={getStatusColor(app.status)}>
-                                {app.status.replace('_', ' ')}
-                              </Badge>
-                            </div>
-                            <p className="text-gray-600 mb-2">{app.business_name}</p>
-                            <p className="text-sm text-gray-500 mb-4">{app.project_description}</p>
-                            <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
-                              <div>
-                                <span className="text-gray-500">Type:</span>
-                                <div className="font-medium">{app.application_type}</div>
-                              </div>
-                              <div>
-                                <span className="text-gray-500">Sector:</span>
-                                <div className="font-medium">{app.sector}</div>
-                              </div>
-                              <div>
-                                <span className="text-gray-500">Amount:</span>
-                                <div className="font-medium">KES {app.funding_amount_requested.toLocaleString()}</div>
-                              </div>
-                              <div>
-                                <span className="text-gray-500">Beneficiaries:</span>
-                                <div className="font-medium">{app.target_beneficiaries}</div>
-                              </div>
-                            </div>
-                          </div>
-                          <div className="ml-4">
-                            <Button 
-                              size="sm" 
-                              onClick={() => handleViewApplication(app.id)}
-                            >
-                              View Details
-                            </Button>
-                          </div>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                </CardContent>
-              </Card>
-            </TabsContent>
-
-            <TabsContent value="sectors">
-              <Card>
-                <CardHeader>
-                  <CardTitle>Creative Sectors</CardTitle>
-                  <CardDescription>Explore funding opportunities across different creative industries</CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                    {[
-                      { name: "Arts & Culture", applications: 45, funding: "KES 2.3M", icon: Target },
-                      { name: "Media & Entertainment", applications: 32, funding: "KES 1.8M", icon: Smartphone },
-                      { name: "Design & Fashion", applications: 28, funding: "KES 1.5M", icon: Building2 },
-                      { name: "Digital Content", applications: 38, funding: "KES 2.1M", icon: FileText },
-                      { name: "Music & Audio", applications: 25, funding: "KES 1.2M", icon: Users },
-                      { name: "Film & Video", applications: 30, funding: "KES 1.9M", icon: CreditCard }
-                    ].map((sector, index) => (
-                      <Card key={index} className="hover:shadow-md transition-shadow">
-                        <CardHeader className="flex flex-row items-center space-y-0 pb-2">
-                          <sector.icon className="h-8 w-8 text-purple-600" />
-                          <div className="ml-4">
-                            <CardTitle className="text-base">{sector.name}</CardTitle>
-                          </div>
-                        </CardHeader>
-                        <CardContent>
-                          <div className="space-y-2">
-                            <div className="flex justify-between">
-                              <span className="text-sm text-gray-600">Applications:</span>
-                              <span className="font-medium">{sector.applications}</span>
-                            </div>
-                            <div className="flex justify-between">
-                              <span className="text-sm text-gray-600">Total Funding:</span>
-                              <span className="font-medium">{sector.funding}</span>
-                            </div>
-                          </div>
-                        </CardContent>
-                      </Card>
-                    ))}
-                  </div>
-                </CardContent>
-              </Card>
-            </TabsContent>
-
-            <TabsContent value="analytics">
-              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                <Card>
-                  <CardHeader>
-                    <CardTitle>Application Trends</CardTitle>
-                    <CardDescription>Your application performance over time</CardDescription>
-                  </CardHeader>
-                  <CardContent>
-                    <div className="space-y-4">
-                      <div className="flex items-center justify-between">
-                        <span>Success Rate</span>
-                        <div className="flex items-center space-x-2">
-                          <Progress value={50} className="w-20" />
-                          <span className="text-sm font-medium">50%</span>
-                        </div>
-                      </div>
-                      <div className="flex items-center justify-between">
-                        <span>Response Time</span>
-                        <div className="flex items-center space-x-2">
-                          <Progress value={75} className="w-20" />
-                          <span className="text-sm font-medium">15 days avg</span>
-                        </div>
-                      </div>
-                      <div className="flex items-center justify-between">
-                        <span>Completion Rate</span>
-                        <div className="flex items-center space-x-2">
-                          <Progress value={90} className="w-20" />
-                          <span className="text-sm font-medium">90%</span>
-                        </div>
+                  <div className="flex items-center space-x-4">
+                    <Badge className={getStatusColor(app.status)}>
+                      {app.status.replace(/_/g, ' ')}
+                    </Badge>
+                    <div className="text-right">
+                      <div className="font-medium">KES {app.funding_amount_requested.toLocaleString()}</div>
+                      <div className="text-xs text-gray-500">
+                        {new Date(app.submitted_at).toLocaleDateString()}
                       </div>
                     </div>
-                  </CardContent>
-                </Card>
-
-                <Card>
-                  <CardHeader>
-                    <CardTitle>Credit Health</CardTitle>
-                    <CardDescription>Monitor your creditworthiness progress</CardDescription>
-                  </CardHeader>
-                  <CardContent>
-                    <div className="space-y-4">
-                      <div className="text-center">
-                        <div className="text-3xl font-bold text-green-600">{mockCreditScore.score}</div>
-                        <div className="text-sm text-gray-600">{mockCreditScore.grade}</div>
-                      </div>
-                      <div className="space-y-2">
-                        {mockCreditScore.factors.map((factor, index) => (
-                          <div key={index} className="flex items-center justify-between">
-                            <span className="text-sm">{factor.factor}</span>
-                            <div className="flex items-center space-x-2">
-                              <Progress value={factor.weight * 10} className="w-16" />
-                              <span className={`text-xs px-2 py-1 rounded-full ${
-                                factor.impact === 'positive' ? 'bg-green-100 text-green-800' :
-                                factor.impact === 'negative' ? 'bg-red-100 text-red-800' :
-                                'bg-yellow-100 text-yellow-800'
-                              }`}>
-                                {factor.impact}
-                              </span>
-                            </div>
-                          </div>
-                        ))}
-                      </div>
-                    </div>
-                  </CardContent>
-                </Card>
-              </div>
-            </TabsContent>
-          </Tabs>
+                    <Button 
+                      size="sm" 
+                      variant="outline"
+                      onClick={() => handleViewApplication(app.id)}
+                    >
+                      <Eye className="h-4 w-4 mr-1" />
+                      View
+                    </Button>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </CardContent>
+        </Card>
+      </div>
     </div>
   );
 };

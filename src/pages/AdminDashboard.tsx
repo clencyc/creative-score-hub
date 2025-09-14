@@ -9,6 +9,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { useAuth } from "@/hooks/useAuth";
 import { useAdmin } from "@/hooks/useAdmin";
+import Header from "@/components/Header";
 import { supabase } from "@/lib/supabase";
 import { Application, ApplicationStatus, UserProfile } from "@/types/database";
 import { 
@@ -44,15 +45,6 @@ const AdminDashboard = () => {
 
   const { user } = useAuth();
   const { isAdmin, hasAdminAccess, adminEmail } = useAdmin();
-
-  // Handle URL parameters for tab switching
-  useEffect(() => {
-    const urlParams = new URLSearchParams(window.location.search);
-    const tab = urlParams.get('tab');
-    if (tab && ['overview', 'applications', 'risk', 'sectors', 'ai-assistant'].includes(tab)) {
-      setActiveTab(tab);
-    }
-  }, []);
 
   const fetchApplications = useCallback(async () => {
     try {
@@ -230,51 +222,58 @@ const AdminDashboard = () => {
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center h-96">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto mb-4"></div>
-          <p className="text-muted-foreground">Loading applications...</p>
+      <div className="min-h-screen bg-background">
+        <Header />
+        <div className="pt-16 flex items-center justify-center h-96">
+          <div className="text-center">
+            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto mb-4"></div>
+            <p className="text-muted-foreground">Loading applications...</p>
+          </div>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="space-y-6">
-      {/* Header Section */}
-      <div className="border-b border-border bg-card rounded-lg p-6">
-        <div className="flex items-center justify-between">
-          <div>
-            <h1 className="text-2xl font-bold text-foreground">
-              Admin Dashboard 
-              {isAdmin && (
-                <Badge variant="default" className="ml-2 bg-purple-600">
-                  System Administrator
-                </Badge>
-              )}
-            </h1>
-            <p className="text-muted-foreground">
-              Creative Industry Funding Management
-              {user?.email === adminEmail && (
-                <span className="text-xs text-purple-600 ml-2">
-                  • Logged in as: {adminEmail}
-                </span>
-              )}
-            </p>
+    <div className="min-h-screen bg-background">
+      <Header />
+      <div className="pt-16">
+        <div className="border-b border-border bg-card">
+          <div className="container mx-auto px-6 py-4">
+            <div className="flex items-center justify-between">
+              <div>
+                <h1 className="text-2xl font-bold text-foreground">
+                  Admin Dashboard 
+                  {isAdmin && (
+                    <Badge variant="default" className="ml-2 bg-purple-600">
+                      System Administrator
+                    </Badge>
+                  )}
+                </h1>
+                <p className="text-muted-foreground">
+                  Creative Industry Funding Management
+                  {user?.email === adminEmail && (
+                    <span className="text-xs text-purple-600 ml-2">
+                      • Logged in as: {adminEmail}
+                    </span>
+                  )}
+                </p>
+              </div>
+              <Button 
+                variant="default" 
+                className="bg-gradient-to-r from-purple-600 to-blue-600"
+                onClick={() => fetchApplications()}
+              >
+                Refresh Data
+              </Button>
+            </div>
           </div>
-          <Button 
-            variant="default" 
-            className="bg-gradient-to-r from-purple-600 to-blue-600"
-            onClick={() => fetchApplications()}
-          >
-            Refresh Data
-          </Button>
         </div>
-      </div>
 
-      {/* Stats Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-5 gap-6">
-        <Card>
+        <div className="container mx-auto px-6 py-8">
+          {/* Stats Cards */}
+          <div className="grid grid-cols-1 md:grid-cols-5 gap-6 mb-8">
+            <Card>
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                 <CardTitle className="text-sm font-medium">Total Applications</CardTitle>
                 <Users className="h-4 w-4 text-muted-foreground" />
@@ -328,23 +327,15 @@ const AdminDashboard = () => {
                 <p className="text-xs text-muted-foreground">Applications denied</p>
               </CardContent>
             </Card>
-        </div>
+          </div>
 
-        {/* Main Content Tabs */}
-        <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
-            <TabsList className="grid w-full grid-cols-5">
+          {/* Main Content Tabs */}
+          <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
+            <TabsList className="grid w-full grid-cols-4">
               <TabsTrigger value="overview">Overview</TabsTrigger>
-              <TabsTrigger value="applications">
-                Applications 
-                {stats.pendingReviews > 0 && (
-                  <Badge className="ml-2 bg-red-500 text-white text-xs">
-                    {stats.pendingReviews}
-                  </Badge>
-                )}
-              </TabsTrigger>
-              <TabsTrigger value="risk">Risk Analytics</TabsTrigger>
+              <TabsTrigger value="applications">All Applications</TabsTrigger>
               <TabsTrigger value="sectors">Sectors</TabsTrigger>
-              <TabsTrigger value="ai-assistant">AI Assistant</TabsTrigger>
+              <TabsTrigger value="risk-analytics">Risk Analytics</TabsTrigger>
             </TabsList>
 
             <TabsContent value="overview" className="space-y-6">
@@ -502,255 +493,6 @@ const AdminDashboard = () => {
               </Card>
             </TabsContent>
 
-            <TabsContent value="risk" className="space-y-6">
-              <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-6">
-                {/* Risk Level Summary Cards */}
-                <Card className="border-red-200">
-                  <CardHeader className="pb-3">
-                    <CardTitle className="text-lg flex items-center gap-2 text-red-700">
-                      <AlertTriangle className="h-5 w-5" />
-                      High Risk
-                    </CardTitle>
-                  </CardHeader>
-                  <CardContent>
-                    <div className="text-3xl font-bold text-red-600 mb-2">
-                      {applications.filter(app => (app.credit_score || 0) < 600).length}
-                    </div>
-                    <p className="text-sm text-red-600 mb-3">Credit Score &lt; 600</p>
-                    <div className="space-y-2 text-sm">
-                      <div className="flex justify-between">
-                        <span>Avg Amount:</span>
-                        <span className="font-medium">
-                          {formatCurrency(
-                            applications.filter(app => (app.credit_score || 0) < 600)
-                              .reduce((sum, app) => sum + app.funding_amount_requested, 0) / 
-                            Math.max(applications.filter(app => (app.credit_score || 0) < 600).length, 1)
-                          )}
-                        </span>
-                      </div>
-                      <div className="flex justify-between">
-                        <span>Approval Rate:</span>
-                        <span className="font-medium text-red-600">15%</span>
-                      </div>
-                    </div>
-                  </CardContent>
-                </Card>
-
-                <Card className="border-yellow-200">
-                  <CardHeader className="pb-3">
-                    <CardTitle className="text-lg flex items-center gap-2 text-yellow-700">
-                      <Clock className="h-5 w-5" />
-                      Medium Risk
-                    </CardTitle>
-                  </CardHeader>
-                  <CardContent>
-                    <div className="text-3xl font-bold text-yellow-600 mb-2">
-                      {applications.filter(app => (app.credit_score || 0) >= 600 && (app.credit_score || 0) < 700).length}
-                    </div>
-                    <p className="text-sm text-yellow-600 mb-3">Credit Score 600-699</p>
-                    <div className="space-y-2 text-sm">
-                      <div className="flex justify-between">
-                        <span>Avg Amount:</span>
-                        <span className="font-medium">
-                          {formatCurrency(
-                            applications.filter(app => (app.credit_score || 0) >= 600 && (app.credit_score || 0) < 700)
-                              .reduce((sum, app) => sum + app.funding_amount_requested, 0) / 
-                            Math.max(applications.filter(app => (app.credit_score || 0) >= 600 && (app.credit_score || 0) < 700).length, 1)
-                          )}
-                        </span>
-                      </div>
-                      <div className="flex justify-between">
-                        <span>Approval Rate:</span>
-                        <span className="font-medium text-yellow-600">65%</span>
-                      </div>
-                    </div>
-                  </CardContent>
-                </Card>
-
-                <Card className="border-green-200">
-                  <CardHeader className="pb-3">
-                    <CardTitle className="text-lg flex items-center gap-2 text-green-700">
-                      <CheckCircle className="h-5 w-5" />
-                      Low Risk
-                    </CardTitle>
-                  </CardHeader>
-                  <CardContent>
-                    <div className="text-3xl font-bold text-green-600 mb-2">
-                      {applications.filter(app => (app.credit_score || 0) >= 700).length}
-                    </div>
-                    <p className="text-sm text-green-600 mb-3">Credit Score ≥ 700</p>
-                    <div className="space-y-2 text-sm">
-                      <div className="flex justify-between">
-                        <span>Avg Amount:</span>
-                        <span className="font-medium">
-                          {formatCurrency(
-                            applications.filter(app => (app.credit_score || 0) >= 700)
-                              .reduce((sum, app) => sum + app.funding_amount_requested, 0) / 
-                            Math.max(applications.filter(app => (app.credit_score || 0) >= 700).length, 1)
-                          )}
-                        </span>
-                      </div>
-                      <div className="flex justify-between">
-                        <span>Approval Rate:</span>
-                        <span className="font-medium text-green-600">85%</span>
-                      </div>
-                    </div>
-                  </CardContent>
-                </Card>
-              </div>
-
-              {/* Risk Analysis Tables */}
-              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                <Card>
-                  <CardHeader>
-                    <CardTitle className="text-red-700">High Risk Applications</CardTitle>
-                    <CardDescription>Applications requiring careful review</CardDescription>
-                  </CardHeader>
-                  <CardContent>
-                    <div className="space-y-3">
-                      {applications
-                        .filter(app => (app.credit_score || 0) < 600)
-                        .slice(0, 5)
-                        .map((app) => (
-                          <div key={app.id} className="flex items-center justify-between p-3 border border-red-200 rounded-lg bg-red-50">
-                            <div className="flex-1">
-                              <div className="font-medium text-sm">User {app.user_id?.slice(0, 8)}</div>
-                              <div className="text-xs text-red-600">
-                                Credit: {app.credit_score || 'N/A'} • {formatSector(app.creative_sector)}
-                              </div>
-                            </div>
-                            <div className="text-right">
-                              <div className="font-bold text-sm text-red-700">
-                                {formatCurrency(app.funding_amount_requested)}
-                              </div>
-                              <Badge className="bg-red-500 text-white text-xs">
-                                {app.status.replace('_', ' ')}
-                              </Badge>
-                            </div>
-                            <Button 
-                              size="sm" 
-                              variant="outline" 
-                              className="ml-2 h-8 border-red-300"
-                              onClick={() => handleViewDetails(app)}
-                            >
-                              <Eye className="h-3 w-3" />
-                            </Button>
-                          </div>
-                        ))}
-                      {applications.filter(app => (app.credit_score || 0) < 600).length === 0 && (
-                        <p className="text-center text-gray-500 py-4">No high-risk applications</p>
-                      )}
-                    </div>
-                  </CardContent>
-                </Card>
-
-                <Card>
-                  <CardHeader>
-                    <CardTitle className="text-green-700">Low Risk Applications</CardTitle>
-                    <CardDescription>Pre-approved candidates</CardDescription>
-                  </CardHeader>
-                  <CardContent>
-                    <div className="space-y-3">
-                      {applications
-                        .filter(app => (app.credit_score || 0) >= 700)
-                        .slice(0, 5)
-                        .map((app) => (
-                          <div key={app.id} className="flex items-center justify-between p-3 border border-green-200 rounded-lg bg-green-50">
-                            <div className="flex-1">
-                              <div className="font-medium text-sm">User {app.user_id?.slice(0, 8)}</div>
-                              <div className="text-xs text-green-600">
-                                Credit: {app.credit_score || 'N/A'} • {formatSector(app.creative_sector)}
-                              </div>
-                            </div>
-                            <div className="text-right">
-                              <div className="font-bold text-sm text-green-700">
-                                {formatCurrency(app.funding_amount_requested)}
-                              </div>
-                              <Badge className="bg-green-500 text-white text-xs">
-                                {app.status.replace('_', ' ')}
-                              </Badge>
-                            </div>
-                            <Button 
-                              size="sm" 
-                              variant="outline" 
-                              className="ml-2 h-8 border-green-300"
-                              onClick={() => handleViewDetails(app)}
-                            >
-                              <Eye className="h-3 w-3" />
-                            </Button>
-                          </div>
-                        ))}
-                      {applications.filter(app => (app.credit_score || 0) >= 700).length === 0 && (
-                        <p className="text-center text-gray-500 py-4">No low-risk applications</p>
-                      )}
-                    </div>
-                  </CardContent>
-                </Card>
-              </div>
-
-              {/* Risk Analytics Dashboard */}
-              <Card>
-                <CardHeader>
-                  <CardTitle className="flex items-center gap-2">
-                    <TrendingUp className="h-5 w-5" />
-                    Risk Analytics Dashboard
-                  </CardTitle>
-                  <CardDescription>
-                    Comprehensive risk assessment and trends
-                  </CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
-                    <div className="p-4 bg-gray-50 rounded-lg text-center">
-                      <div className="text-2xl font-bold text-gray-700">
-                        {applications.length > 0 ? 
-                          Math.round((applications.filter(app => (app.credit_score || 0) >= 700).length / applications.length) * 100) : 0}%
-                      </div>
-                      <div className="text-sm text-gray-600">Low Risk Ratio</div>
-                    </div>
-                    <div className="p-4 bg-gray-50 rounded-lg text-center">
-                      <div className="text-2xl font-bold text-gray-700">
-                        {applications.length > 0 ? 
-                          Math.round(applications.reduce((sum, app) => sum + (app.credit_score || 0), 0) / applications.length) : 0}
-                      </div>
-                      <div className="text-sm text-gray-600">Avg Credit Score</div>
-                    </div>
-                    <div className="p-4 bg-gray-50 rounded-lg text-center">
-                      <div className="text-2xl font-bold text-gray-700">
-                        {formatCurrency(
-                          applications.filter(app => (app.credit_score || 0) >= 700)
-                            .reduce((sum, app) => sum + app.funding_amount_requested, 0)
-                        )}
-                      </div>
-                      <div className="text-sm text-gray-600">Low Risk Volume</div>
-                    </div>
-                    <div className="p-4 bg-gray-50 rounded-lg text-center">
-                      <div className="text-2xl font-bold text-gray-700">2.1 days</div>
-                      <div className="text-sm text-gray-600">Avg Review Time</div>
-                    </div>
-                  </div>
-
-                  <div className="border-t pt-4">
-                    <h4 className="font-medium mb-3">Risk Recommendations</h4>
-                    <div className="space-y-2 text-sm">
-                      <div className="flex items-center gap-2 text-green-700">
-                        <CheckCircle className="h-4 w-4" />
-                        <span>Auto-approve applications with 750+ credit score and &lt;KES 200,000 funding</span>
-                      </div>
-                      <div className="flex items-center gap-2 text-yellow-700">
-                        <Clock className="h-4 w-4" />
-                        <span>Medium risk applications (600-699) require business plan verification</span>
-                      </div>
-                      <div className="flex items-center gap-2 text-red-700">
-                        <AlertTriangle className="h-4 w-4" />
-                        <span>High risk applications (&lt;600) need collateral and detailed review</span>
-                      </div>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-            </TabsContent>
-
             <TabsContent value="sectors" className="space-y-6">
               <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                 {['visual_arts_crafts', 'performing_arts', 'music', 'film_tv_video', 'design_creative_services', 'digital_interactive_media'].map((sector) => {
@@ -788,138 +530,106 @@ const AdminDashboard = () => {
               </div>
             </TabsContent>
 
-            <TabsContent value="ai-assistant" className="space-y-6">
-              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                <Card>
-                  <CardHeader>
-                    <CardTitle className="flex items-center gap-2">
-                      <MessageSquare className="h-5 w-5" />
-                      AI Review Assistant
-                    </CardTitle>
-                    <CardDescription>
-                      Get AI-powered insights for application reviews
-                    </CardDescription>
-                  </CardHeader>
-                  <CardContent className="space-y-4">
-                    <div className="p-4 bg-blue-50 rounded-lg border border-blue-200">
-                      <h4 className="font-medium text-blue-900 mb-2">Smart Review Suggestions</h4>
-                      <ul className="text-sm text-blue-800 space-y-1">
-                        <li>• Automated risk assessment based on financial data</li>
-                        <li>• Industry benchmark comparisons</li>
-                        <li>• Funding amount recommendations</li>
-                        <li>• Red flag detection for applications</li>
-                      </ul>
-                    </div>
-                    
-                    <div className="p-4 bg-green-50 rounded-lg border border-green-200">
-                      <h4 className="font-medium text-green-900 mb-2">Approval Insights</h4>
-                      <div className="text-sm text-green-800">
-                        <p>Applications with 750+ credit scores have 85% approval rate</p>
-                        <p className="mt-1">Visual arts sector showing highest success rate</p>
-                      </div>
-                    </div>
-
-                    <Button className="w-full" variant="outline">
-                      <MessageSquare className="mr-2 h-4 w-4" />
-                      Open AI Chat Assistant
-                    </Button>
-                  </CardContent>
-                </Card>
-
-                <Card>
-                  <CardHeader>
-                    <CardTitle className="flex items-center gap-2">
-                      <TrendingUp className="h-5 w-5" />
-                      Application Analytics
-                    </CardTitle>
-                    <CardDescription>
-                      AI-driven insights and trends
-                    </CardDescription>
-                  </CardHeader>
-                  <CardContent className="space-y-4">
-                    <div className="space-y-3">
-                      <div className="flex justify-between items-center p-3 bg-gray-50 rounded">
-                        <span className="text-sm">Avg Review Time</span>
-                        <span className="font-medium">2.3 days</span>
-                      </div>
-                      <div className="flex justify-between items-center p-3 bg-gray-50 rounded">
-                        <span className="text-sm">Approval Rate</span>
-                        <span className="font-medium text-green-600">68%</span>
-                      </div>
-                      <div className="flex justify-between items-center p-3 bg-gray-50 rounded">
-                        <span className="text-sm">Risk Score Avg</span>
-                        <span className="font-medium text-yellow-600">Medium</span>
-                      </div>
-                    </div>
-
-                    <div className="pt-4 border-t">
-                      <h4 className="font-medium mb-2">Recent AI Recommendations</h4>
-                      <div className="space-y-2 text-sm">
-                        <p className="text-muted-foreground">
-                          • Consider reducing funding for applicants with &lt;600 credit score
-                        </p>
-                        <p className="text-muted-foreground">
-                          • Music sector applications need additional verification
-                        </p>
-                        <p className="text-muted-foreground">
-                          • Increase approval rate for returning applicants
-                        </p>
-                      </div>
-                    </div>
-                  </CardContent>
-                </Card>
-              </div>
-
-              {/* AI Chat Interface */}
+            <TabsContent value="risk-analytics" className="space-y-6">
               <Card>
                 <CardHeader>
-                  <CardTitle>AI Assistant Chat</CardTitle>
+                  <CardTitle className="flex items-center gap-2">
+                    <AlertTriangle className="h-5 w-5 text-orange-600" />
+                    AI Risk Assessment Model
+                  </CardTitle>
                   <CardDescription>
-                    Ask questions about applications, get recommendations, or request analysis
+                    Analyze applicant risk profiles using advanced AI modeling. This tool helps evaluate creditworthiness and application viability.
                   </CardDescription>
                 </CardHeader>
                 <CardContent>
                   <div className="space-y-4">
-                    <div className="h-64 p-4 border rounded-lg bg-gray-50 overflow-y-auto">
-                      <div className="space-y-3">
-                        <div className="flex gap-3">
-                          <div className="w-8 h-8 rounded-full bg-blue-500 flex items-center justify-center text-white text-sm">
-                            AI
-                          </div>
-                          <div className="flex-1 p-3 bg-white rounded-lg shadow-sm">
-                            <p className="text-sm">
-                              Hello! I'm your AI assistant for application reviews. I can help you:
-                            </p>
-                            <ul className="text-sm mt-2 space-y-1">
-                              <li>• Analyze application risk factors</li>
-                              <li>• Compare applications to industry benchmarks</li>
-                              <li>• Suggest approval/rejection reasons</li>
-                              <li>• Generate review summaries</li>
-                            </ul>
-                            <p className="text-sm mt-2 text-blue-600">
-                              Try asking: "What's the risk level for application #12345?" or "Show me today's pending applications"
-                            </p>
-                          </div>
-                        </div>
+                    <div className="flex items-center justify-between p-4 bg-blue-50 rounded-lg border border-blue-200">
+                      <div className="flex items-center gap-2">
+                        <div className="h-2 w-2 bg-green-500 rounded-full animate-pulse"></div>
+                        <span className="text-sm font-medium text-blue-900">Risk Assessment Tool Active</span>
                       </div>
+                      <Badge variant="secondary" className="bg-green-100 text-green-800">
+                        Live Model
+                      </Badge>
                     </div>
                     
-                    <div className="flex gap-2">
-                      <input 
-                        type="text" 
-                        placeholder="Ask AI assistant about applications..." 
-                        className="flex-1 px-3 py-2 border rounded-lg"
+                    <div className="rounded-lg border border-gray-200 overflow-hidden">
+                      <iframe
+                        src="https://codequeens-ai-model-m4tpztmwu8trcegrmrtoka.streamlit.app/?embed=true"
+                        width="100%"
+                        height="800"
+                        style={{
+                          border: 'none',
+                          borderRadius: '0.5rem'
+                        }}
+                        title="AI Risk Assessment Model"
+                        loading="lazy"
+                        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                        sandbox="allow-scripts allow-same-origin allow-forms allow-downloads"
                       />
-                      <Button>
-                        <MessageSquare className="mr-2 h-4 w-4" />
-                        Send
-                      </Button>
+                    </div>
+                    
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-6">
+                      <Card className="border-l-4 border-l-red-500">
+                        <CardHeader className="pb-3">
+                          <CardTitle className="text-sm text-red-700">High Risk</CardTitle>
+                        </CardHeader>
+                        <CardContent>
+                          <div className="text-2xl font-bold text-red-600">
+                            {applications.filter(app => 
+                              // Simulated risk scoring - in real app this would come from the AI model
+                              app.funding_amount_requested > 100000 || app.status === 'rejected'
+                            ).length}
+                          </div>
+                          <p className="text-xs text-red-600">Applications flagged</p>
+                        </CardContent>
+                      </Card>
+                      
+                      <Card className="border-l-4 border-l-yellow-500">
+                        <CardHeader className="pb-3">
+                          <CardTitle className="text-sm text-yellow-700">Medium Risk</CardTitle>
+                        </CardHeader>
+                        <CardContent>
+                          <div className="text-2xl font-bold text-yellow-600">
+                            {applications.filter(app => 
+                              app.funding_amount_requested >= 50000 && app.funding_amount_requested <= 100000
+                            ).length}
+                          </div>
+                          <p className="text-xs text-yellow-600">Under review</p>
+                        </CardContent>
+                      </Card>
+                      
+                      <Card className="border-l-4 border-l-green-500">
+                        <CardHeader className="pb-3">
+                          <CardTitle className="text-sm text-green-700">Low Risk</CardTitle>
+                        </CardHeader>
+                        <CardContent>
+                          <div className="text-2xl font-bold text-green-600">
+                            {applications.filter(app => 
+                              app.funding_amount_requested < 50000 && app.status === 'approved'
+                            ).length}
+                          </div>
+                          <p className="text-xs text-green-600">Safe to approve</p>
+                        </CardContent>
+                      </Card>
+                    </div>
+
+                    <div className="mt-6 p-4 bg-gray-50 rounded-lg">
+                      <h4 className="font-medium text-gray-900 mb-2">How to Use the Risk Assessment Tool:</h4>
+                      <ul className="text-sm text-gray-600 space-y-1">
+                        <li>• Input applicant financial data and business information</li>
+                        <li>• Review the AI-generated risk score and recommendations</li>
+                        <li>• Use insights to inform your approval decisions</li>
+                        <li>• Monitor patterns across different sectors and risk profiles</li>
+                      </ul>
                     </div>
                   </div>
                 </CardContent>
               </Card>
             </TabsContent>
           </Tabs>
+        </div>
+      </div>
 
       {/* Application Details Dialog */}
       <Dialog open={showDetailsDialog} onOpenChange={setShowDetailsDialog}>
@@ -927,62 +637,13 @@ const AdminDashboard = () => {
           {selectedApplication && (
             <>
               <DialogHeader>
-                <DialogTitle className="flex items-center justify-between">
-                  <span>Application Review</span>
-                  <div className="flex items-center gap-2">
-                    <Badge className={getStatusColor(selectedApplication.status)}>
-                      {selectedApplication.status.replace('_', ' ')}
-                    </Badge>
-                    {selectedApplication.credit_score && (
-                      <Badge variant="outline" className={selectedApplication.credit_score >= 700 ? 'border-green-500 text-green-700' : selectedApplication.credit_score >= 600 ? 'border-yellow-500 text-yellow-700' : 'border-red-500 text-red-700'}>
-                        Credit: {selectedApplication.credit_score}
-                      </Badge>
-                    )}
-                  </div>
-                </DialogTitle>
+                <DialogTitle>Application Details</DialogTitle>
                 <DialogDescription>
-                  Review and manage application from User {selectedApplication.user_id?.slice(0, 8) || 'Unknown'} • 
-                  Submitted {new Date(selectedApplication.created_at).toLocaleDateString()}
+                  Review and manage application from User {selectedApplication.user_id?.slice(0, 8) || 'Unknown'}
                 </DialogDescription>
               </DialogHeader>
 
               <div className="space-y-6">
-                {/* AI Risk Assessment */}
-                <div className="p-4 bg-blue-50 border border-blue-200 rounded-lg">
-                  <h4 className="font-medium text-blue-900 mb-2 flex items-center gap-2">
-                    <MessageSquare className="h-4 w-4" />
-                    AI Risk Assessment
-                  </h4>
-                  <div className="grid grid-cols-3 gap-4 text-sm">
-                    <div className="text-center">
-                      <div className={`text-lg font-bold ${selectedApplication.credit_score >= 700 ? 'text-green-600' : selectedApplication.credit_score >= 600 ? 'text-yellow-600' : 'text-red-600'}`}>
-                        {selectedApplication.credit_score >= 700 ? 'LOW' : selectedApplication.credit_score >= 600 ? 'MEDIUM' : 'HIGH'}
-                      </div>
-                      <div className="text-blue-700">Risk Level</div>
-                    </div>
-                    <div className="text-center">
-                      <div className="text-lg font-bold text-blue-600">
-                        {selectedApplication.funding_amount_requested <= 100000 ? '85%' : selectedApplication.funding_amount_requested <= 500000 ? '65%' : '45%'}
-                      </div>
-                      <div className="text-blue-700">Success Rate</div>
-                    </div>
-                    <div className="text-center">
-                      <div className="text-lg font-bold text-blue-600">
-                        {selectedApplication.credit_score >= 700 ? 'APPROVE' : selectedApplication.credit_score >= 600 ? 'REVIEW' : 'CAUTION'}
-                      </div>
-                      <div className="text-blue-700">AI Recommendation</div>
-                    </div>
-                  </div>
-                  <div className="mt-3 text-sm text-blue-800">
-                    <strong>AI Notes:</strong> 
-                    {selectedApplication.credit_score >= 700 
-                      ? " Excellent credit profile. Low risk candidate for approval."
-                      : selectedApplication.credit_score >= 600 
-                      ? " Moderate credit profile. Consider funding amount and business viability."
-                      : " Below average credit score. Requires detailed review of business plan and collateral."
-                    }
-                  </div>
-                </div>
                 {/* Basic Info */}
                 <div className="grid grid-cols-2 gap-4">
                   <div>
@@ -1048,107 +709,50 @@ const AdminDashboard = () => {
 
                 {/* Review Notes */}
                 <div>
-                  <Label htmlFor="review-notes">Admin Review Notes</Label>
+                  <Label htmlFor="review-notes">Review Notes</Label>
                   <Textarea
                     id="review-notes"
                     value={reviewNotes}
                     onChange={(e) => setReviewNotes(e.target.value)}
-                    placeholder="Add your detailed review notes, conditions, or feedback..."
-                    className="mt-2 min-h-[100px]"
+                    placeholder="Add your review notes here..."
+                    className="mt-2"
                   />
-                  <p className="text-xs text-muted-foreground mt-1">
-                    These notes will be saved with the application and can be referenced in future reviews.
-                  </p>
                 </div>
 
-                {/* Quick Actions */}
-                <div className="grid grid-cols-2 gap-4">
-                  <div className="p-4 border rounded-lg">
-                    <h4 className="font-medium mb-2 text-green-700">Approval Actions</h4>
-                    <div className="space-y-2">
-                      {selectedApplication.status !== 'approved' && (
-                        <>
-                          <Button 
-                            onClick={() => handleStatusUpdate(selectedApplication.id, 'approved')}
-                            className="w-full bg-green-600 hover:bg-green-700"
-                            size="sm"
-                          >
-                            <CheckCircle className="h-4 w-4 mr-2" />
-                            Approve Application
-                          </Button>
-                          <Button 
-                            onClick={() => {
-                              setReviewNotes(`Conditionally approved. Requires additional documentation before fund disbursement. ${reviewNotes}`);
-                              handleStatusUpdate(selectedApplication.id, 'under_review');
-                            }}
-                            variant="outline"
-                            className="w-full border-green-300 text-green-700"
-                            size="sm"
-                          >
-                            Conditional Approval
-                          </Button>
-                        </>
-                      )}
-                    </div>
-                  </div>
-
-                  <div className="p-4 border rounded-lg">
-                    <h4 className="font-medium mb-2 text-red-700">Review/Rejection Actions</h4>
-                    <div className="space-y-2">
-                      {selectedApplication.status !== 'rejected' && (
-                        <Button 
-                          onClick={() => handleStatusUpdate(selectedApplication.id, 'rejected')}
-                          variant="destructive"
-                          className="w-full"
-                          size="sm"
-                        >
-                          <XCircle className="h-4 w-4 mr-2" />
-                          Reject Application
-                        </Button>
-                      )}
-                      
-                      {selectedApplication.status !== 'under_review' && (
-                        <Button 
-                          onClick={() => handleStatusUpdate(selectedApplication.id, 'under_review')}
-                          variant="outline"
-                          className="w-full border-yellow-300 text-yellow-700"
-                          size="sm"
-                        >
-                          <Clock className="h-4 w-4 mr-2" />
-                          Mark Under Review
-                        </Button>
-                      )}
-
-                      <Button 
-                        onClick={() => {
-                          setReviewNotes(`Requires additional information: ${reviewNotes}`);
-                          handleStatusUpdate(selectedApplication.id, 'pending_documents');
-                        }}
-                        variant="outline"
-                        className="w-full"
-                        size="sm"
-                      >
-                        Request More Info
-                      </Button>
-                    </div>
-                  </div>
-                </div>
-
-                {/* Admin Actions Footer */}
-                <div className="flex justify-between items-center pt-4 border-t">
-                  <div className="flex gap-2">
-                    <Button variant="outline" size="sm">
-                      <Download className="h-4 w-4 mr-2" />
-                      Export Details
+                {/* Action Buttons */}
+                <div className="flex gap-2 pt-4 border-t">
+                  {selectedApplication.status !== 'approved' && (
+                    <Button 
+                      onClick={() => handleStatusUpdate(selectedApplication.id, 'approved')}
+                      className="bg-green-600 hover:bg-green-700"
+                    >
+                      <CheckCircle className="h-4 w-4 mr-2" />
+                      Approve
                     </Button>
-                    <Button variant="outline" size="sm">
-                      <MessageSquare className="h-4 w-4 mr-2" />
-                      AI Analysis
-                    </Button>
-                  </div>
+                  )}
                   
+                  {selectedApplication.status !== 'rejected' && (
+                    <Button 
+                      onClick={() => handleStatusUpdate(selectedApplication.id, 'rejected')}
+                      variant="destructive"
+                    >
+                      <XCircle className="h-4 w-4 mr-2" />
+                      Reject
+                    </Button>
+                  )}
+                  
+                  {selectedApplication.status !== 'under_review' && (
+                    <Button 
+                      onClick={() => handleStatusUpdate(selectedApplication.id, 'under_review')}
+                      variant="outline"
+                    >
+                      <Clock className="h-4 w-4 mr-2" />
+                      Mark Under Review
+                    </Button>
+                  )}
+
                   <Button variant="outline" onClick={() => setShowDetailsDialog(false)}>
-                    Close Review
+                    Close
                   </Button>
                 </div>
               </div>

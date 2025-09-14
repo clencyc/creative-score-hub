@@ -36,34 +36,7 @@ const Sidebar = ({ collapsed = false, onToggle }: SidebarProps) => {
   const { user, signOut } = useAuth();
   const { hasAdminAccess, isAdmin } = useAdmin();
 
-  const navigation = hasAdminAccess && location.pathname.startsWith('/management-console') ? [
-    // Admin-specific navigation for management console
-    { 
-      name: "Overview", 
-      href: "/management-console", 
-      icon: Home,
-      description: "Admin dashboard"
-    },
-    { 
-      name: "Applications", 
-      href: "/management-console?tab=applications", 
-      icon: FileText,
-      description: "Review applications"
-    },
-    { 
-      name: "Risk Analytics", 
-      href: "/management-console?tab=risk", 
-      icon: CreditCard,
-      description: "Risk assessment tools"
-    },
-    { 
-      name: "AI Assistant", 
-      href: "/management-console?tab=ai-assistant", 
-      icon: Sparkles,
-      description: "AI-powered admin tools"
-    },
-  ] : [
-    // Regular user navigation
+  const navigation = [
     { 
       name: "Overview", 
       href: "/dashboard", 
@@ -98,11 +71,6 @@ const Sidebar = ({ collapsed = false, onToggle }: SidebarProps) => {
 
   const isActive = (href: string) => {
     if (href === "/dashboard") return location.pathname === "/dashboard";
-    if (href === "/management-console") return location.pathname === "/management-console" && !location.search;
-    if (href.includes("?tab=")) {
-      const [path, tab] = href.split("?tab=");
-      return location.pathname === path && location.search.includes(`tab=${tab}`);
-    }
     return location.pathname === href;
   };
 
@@ -200,7 +168,7 @@ const Sidebar = ({ collapsed = false, onToggle }: SidebarProps) => {
                 <>
                   <DropdownMenuSeparator />
                   <DropdownMenuItem asChild>
-                    <Link to="/management-console" className="flex items-center">
+                    <Link to="/admin" className="flex items-center">
                       <Shield className="mr-2 h-4 w-4" />
                       Admin Panel
                     </Link>

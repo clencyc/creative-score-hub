@@ -109,14 +109,14 @@ const App = () => (
               } 
             />
             <Route 
-              path="/management-console" 
+              path="/admin" 
               element={
                 <ProtectedRoute>
                   <AdminRoute>
                     <AdminDashboard />
                   </AdminRoute>
                 </ProtectedRoute>
-              }
+              } 
             />
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />

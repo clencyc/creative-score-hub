@@ -2,10 +2,9 @@ import { useState, useEffect, useCallback } from 'react';
 import { useAuth } from './useAuth';
 import { supabase } from '@/lib/supabase';
 import { UserProfile } from '@/types/database';
-import { ADMIN_CREDENTIALS } from '@/lib/adminUtils';
 
-// Use the same admin email from adminUtils
-const ADMIN_EMAIL = ADMIN_CREDENTIALS.email;
+// Hardcoded admin credentials
+const ADMIN_EMAIL = 'admin@creative-score-hub.com';
 
 export const useAdmin = () => {
   const { user } = useAuth();
